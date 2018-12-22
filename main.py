@@ -47,7 +47,8 @@ def get_player(user_id=None, room=None):
 
 @post('/api/room/<room_id>/parent')
 def set_parent(room_id=None):
-    parent = request.POST['parent']
+    print(request.json)
+    parent = request.json['parent']
     with connect_db() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute('update room set parent = %s where room_id = %s;', (parent, room_id))
