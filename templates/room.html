@@ -5,7 +5,7 @@
 {% block body %}
 
 <h1>ルーム{{ room_id|slice(0, 6) }}</h1>
-  <img src="room/{{ room_id }}.png" width="300" height="300">
+  <img src="data:image/png;base64,{{ qr_code }}" width="300" height="300">
   <h1>参加プレイヤー</h1>
   <div id="players">
   </div>

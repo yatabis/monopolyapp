@@ -23,11 +23,6 @@ def connect_db():
     return psycopg2.connect(DATABASE)
 
 
-@get('/api/room/qr')
-def get_room_qr():
-    return '<br>'.join(os.listdir('./room'))
-
-
 @get('/api/room/list')
 def get_room(room_id=None):
     with connect_db() as conn:
@@ -98,19 +93,19 @@ def get_display_name(line_id=None):
 def create_new_room():
     room_id = str(b64encode(str(uuid4()).encode('utf-8')))[2:-1].lower()
     room_qr = qrcode.make(f"line://app/1629635023-JwWZbqzz?room={room_id}")
-    room_qr.save(f'./room/{room_id}.png')
+    data = str(b64encode(room_qr.get_image().tobytes()))[2:-1]
     with connect_db() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
-            cur.execute('insert into room (room_id, state) values (%s, %s);', (room_id, "starting"))
-    return room_id
+            cur.execute('insert into room (room_id, state, qr_code) values (%s, %s, %s);', (room_id, "starting", data))
+    return room_id, data
 
 
 # callback
 @get('/make-room')
 def make_room():
-    room_id = create_new_room()
+    room_id, qr_code = create_new_room()
     title = f"ルーム{room_id[:6]}"
-    return render('room.html', title=title, room_id=room_id)
+    return render('room.html', title=title, room_id=room_id, qr_code=qr_code)
 
 
 if __name__ == '__main__':
