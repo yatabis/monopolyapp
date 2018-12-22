@@ -12,7 +12,7 @@ import qrcode
 import requests
 
 CAT = os.environ.get('CHANNEL_ACCESS_TOKEN')
-HEADER = {'Contetnt-Type': 'application/json', 'Authprization': f"Bearer {CAT}"}
+HEADER = {'Contetnt-Type': 'application/json', 'Authorization': f"Bearer {CAT}"}
 DATABASE = os.environ.get('DATABASE_URL')
 
 
