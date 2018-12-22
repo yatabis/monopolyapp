@@ -56,7 +56,10 @@ def get_display_name(line_id=None):
         return "line_id is None."
     ep = f"https://api.line.me/v2/bot/profile/{line_id}"
     req = requests.get(ep, headers=HEADER)
-    return req.json().get('displayName')
+    if req.status_code == 200:
+        return req.json().get('displayName')
+    else:
+        return req.json()
 
 
 # functions
