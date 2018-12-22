@@ -23,6 +23,11 @@ def connect_db():
     return psycopg2.connect(DATABASE)
 
 
+@get('api/room/qr')
+def get_room_qr():
+    return '<br>'.join(os.listdir('./room'))
+
+
 @get('/api/room/list')
 def get_room(room_id=None):
     with connect_db() as conn:
@@ -31,7 +36,7 @@ def get_room(room_id=None):
                 cur.execute('select * from room')
             else:
                 cur.execute('select * from room where room_id = %s', (room_id,))
-            return str([row['room_id'] + '<br>' for row in cur.fetchall()])
+            return '<br>'.join([row['room_id'] for row in cur.fetchall()])
 
 
 @get('/api/player/list')
@@ -44,7 +49,7 @@ def get_player(user_id=None, room=None):
                 cur.execute('select * from player where room_id = %s', (room,))
             else:
                 cur.execute('select * from player')
-            return str([f"{row['line_name']} ({row['line_id']})<br>" for row in cur.fetchall()])
+            return '<br>'.join([f"{row['line_name']} ({row['line_id']})" for row in cur.fetchall()])
 
 
 @post('/api/room/<room_id>/parent')
