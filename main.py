@@ -31,7 +31,7 @@ def get_room(room_id=None):
                 cur.execute('select * from room')
             else:
                 cur.execute('select * from room where room_id = %s', (room_id,))
-            return cur.fetchall()
+            return json.dumps(cur.fetchall(), ensure_ascii=False).encode('utf-8')
 
 
 @get('/api/player/list')
@@ -44,7 +44,7 @@ def get_player(user_id=None, room=None):
                 cur.execute('select * from player where room_id = %s', (room,))
             else:
                 cur.execute('select * from player')
-            return cur.fetchall
+            return json.dumps(cur.fetchall(), ensure_ascii=False).encode('utf-8')
 
 
 @post('/api/room/<room_id>/parent')
