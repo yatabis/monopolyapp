@@ -21,6 +21,7 @@ def connect_db():
     return psycopg2.connect(DATABASE)
 
 
+@get('/api/rooms')
 def get_room(room_id=None):
     with connect_db() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
@@ -31,6 +32,7 @@ def get_room(room_id=None):
             return cur.fetchall()
 
 
+@get('/api/players')
 def get_player(user_id=None, room=None):
     with connect_db() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
@@ -41,6 +43,14 @@ def get_player(user_id=None, room=None):
             else:
                 cur.execute('select * from player')
             return cur.fetchall
+
+
+@post('api/room/<room_id>/parent')
+def set_parent(room_id):
+    parent = request.POST['parent']
+    with connect_db() as conn:
+        with conn.cursor(cursor_factory=DictCursor) as cur:
+            cur.execute('update room set parent = %s where room_id = %s;', (parent, room_id))
 
 
 # LINE API
