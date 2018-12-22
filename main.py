@@ -98,7 +98,7 @@ def get_display_name(line_id=None):
 def create_new_room():
     room_id = str(b64encode(str(uuid4()).encode('utf-8')))[2:-1].lower()
     room_qr = qrcode.make(f"line://app/1629635023-JwWZbqzz?room={room_id}")
-    room_qr.save(f'room/{room_id}.png')
+    room_qr.save(f'./room/{room_id}.png')
     with connect_db() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute('insert into room (room_id, state) values (%s, %s);', (room_id, "starting"))
