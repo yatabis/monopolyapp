@@ -5,6 +5,7 @@ from uuid import uuid4
 
 from bottle import get, post, request, run
 from bottle import jinja2_template as render
+from bottle import TEMPLATE_PATH
 from pprint import pprint
 import psycopg2
 from psycopg2.extras import DictCursor
@@ -14,6 +15,7 @@ import requests
 CAT = os.environ.get('CHANNEL_ACCESS_TOKEN')
 HEADER = {'Contetnt-Type': 'application/json', 'Authorization': f"Bearer {CAT}"}
 DATABASE = os.environ.get('DATABASE_URL')
+TEMPLATE_PATH.append("templates/")
 
 
 # database
@@ -47,11 +49,25 @@ def get_player(user_id=None, room=None):
 
 @post('/api/room/<room_id>/parent')
 def set_parent(room_id=None):
-    print(request.json)
     parent = request.json['parent']
     with connect_db() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute('update room set parent = %s where room_id = %s;', (parent, room_id))
+
+
+@post('/api/player')
+def set_player():
+    line_id = request.json.get('line_id', "")
+    line_name = get_display_name(line_id)
+    room_id = request.json.get('room_id', "")
+    position = request.json.get('position', 'child')
+    deal = request.json.get('deal', 'free')
+    money = request.json.get('money', 2000000)
+    with connect_db() as conn:
+        with conn.cursor(cursor_factory=DictCursor) as cur:
+            cur.execute('insert into player (line_id, line_name, room_id, position, deal, money)'
+                        'values (%s, %s, %s, %s, %s, %s);',
+                        (line_id, line_name, room_id, position, deal, money))
 
 
 # LINE API
@@ -87,7 +103,9 @@ def create_new_room():
 # callback
 @get('/make-room')
 def make_room():
-    pass
+    room_id = create_new_room()
+    title = f"ルーム{room_id[:6]}"
+    return render('room.html', title=title, room_id=room_id)
 
 
 if __name__ == '__main__':

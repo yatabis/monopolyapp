@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+
+<h1>ルーム{{ room_id|slice(0, 6) }}</h1>
+  <img src="room/{{ room_id }}.png" width="300" height="300">
+  <h1>参加プレイヤー</h1>
+  <div id="players">
+  </div>
+  <input type="button" value="このメンバーでプレイ" onclick="gameStart()">
+
+<script>
+  const gameStart = () => {
+      liff.closeWindow();
+      window.close()
+  };
+
+  liff.init(data=>{
+      alert('Your line ID\n' + data.context.userId);
+      },err=>{
+      alert('LIFF initializtion failed.\n' + err);
+  });
+</script>
+
+{% endblock %}
