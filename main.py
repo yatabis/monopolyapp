@@ -23,7 +23,7 @@ def connect_db():
     return psycopg2.connect(DATABASE)
 
 
-@get('api/room/qr')
+@get('/api/room/qr')
 def get_room_qr():
     return '<br>'.join(os.listdir('./room'))
 
