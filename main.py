@@ -1,4 +1,5 @@
 from base64 import b64encode
+import io
 import json
 import os
 from uuid import uuid4
@@ -92,8 +93,10 @@ def get_display_name(line_id=None):
 # functions
 def create_new_room():
     room_id = str(b64encode(str(uuid4()).encode('utf-8')))[2:-1].lower()
-    room_qr = qrcode.make(f"line://app/1629635023-JwWZbqzz?room={room_id}")
-    data = str(b64encode(room_qr.get_image().tobytes()))[2:-1]
+    room_qr = qrcode.make(f"line://app/1629635023-JwWZbqzz?room={room_id}").get_image()
+    qr_img = io.BytesIO()
+    room_qr.save(qr_img, format='PNG')
+    data = str(b64encode(qr_img.getvalue()))[2:-1]
     with connect_db() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute('insert into room (room_id, state, qr_code) values (%s, %s, %s);', (room_id, "starting", data))
