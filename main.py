@@ -66,9 +66,11 @@ def set_player():
             if len(check) == 0:
                 cur.execute('insert into player (line_id, line_name, room_id, position) values (%s, %s, %s, %s);',
                             (line_id, line_name, room_id, position))
+                link_richmenu(line_id, position)
                 return OK_RESPONSE
             elif check['room_id'] == "":
                 cur.execute('update player set room_id = %s, position = %s;', (room_id, position))
+                link_richmenu(line_id, position)
                 return OK_RESPONSE
             else:
                 return {'status_code': 409, 'message': "他のルームでプレイ中のため入室できません。"}
@@ -104,6 +106,13 @@ def create_new_room():
         with conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute('insert into room (room_id, state) values (%s, %s);', (room_id, "starting"))
     return room_id, data
+
+
+def link_richmenu(line_id, position):
+    richmenu_id = {'parent': "",
+                   'child': "richmenu-fd8b0d6d96122d2c8b9bc9a6d892fdc4"}
+    ep = f"https://api.line.me/v2/bot/user/{line_id}/richmenu/{richmenu_id[position]}"
+    requests.post(ep, headers=HEADER)
 
 
 # callback
