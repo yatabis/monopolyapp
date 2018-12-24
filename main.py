@@ -17,6 +17,7 @@ CAT = os.environ.get('CHANNEL_ACCESS_TOKEN')
 HEADER = {'Contetnt-Type': 'application/json', 'Authorization': f"Bearer {CAT}"}
 DATABASE = os.environ.get('DATABASE_URL')
 TEMPLATE_PATH.append("templates/")
+OK_RESPONSE = {'status_code': 200, 'message': "OK"}
 
 
 # database
@@ -59,13 +60,18 @@ def set_player():
     line_name = get_display_name(line_id)
     room_id = request.json.get('room_id', "")
     position = request.json.get('position', 'child')
-    deal = request.json.get('deal', 'free')
-    money = request.json.get('money', 15000000)
+    check = json.loads(get_player(line_id))
     with connect_db() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
-            cur.execute('insert into player (line_id, line_name, room_id, position, deal, money)'
-                        'values (%s, %s, %s, %s, %s, %s);',
-                        (line_id, line_name, room_id, position, deal, money))
+            if len(check) == 0:
+                cur.execute('insert into player (line_id, line_name, room_id, position) values (%s, %s, %s, %s);',
+                            (line_id, line_name, room_id, position))
+                return OK_RESPONSE
+            elif check['room_id'] == "":
+                cur.execute('update player set room_id = %s, position = %s;', (room_id, position))
+                return OK_RESPONSE
+            else:
+                return {'status_code': 409, 'message': "他のルームでプレイ中のため入室できません。"}
 
 
 # LINE API
