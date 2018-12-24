@@ -14,7 +14,6 @@
 <script>
     const gameStart = () => {
         liff.closeWindow();
-        window.close()
     };
 
     const setParent = (lineId) => {
@@ -26,10 +25,9 @@
         })
     };
 
-    const setPlayer = (lineId, isParent) => {
+    const setPlayer = (lineId) => {
         const ep = "https://monopoly-bottle.herokuapp.com/api/player";
-        const position = isParent ? 'parent' : 'child';
-        const body = {'line_id': lineId, 'room_id': '{{ room_id }}', 'position': position};
+        const body = {'line_id': lineId, 'room_id': '{{ room_id }}', 'position': 'parent'};
         fetch(ep, {
             method: 'POST',
             body: JSON.stringify(body),
@@ -37,13 +35,40 @@
         })
     };
 
+    const updatePlayers = (players) => {
+        let playersNum = document.getElementById('players').childElementCount;
+        if (Object.keys(players).length !== playersNum) {
+            let wrapper = document.getElementById('players');
+            while (wrapper.firstChild) element.removeChild(wrapper.firstChild);
+            let i = 0;
+            for (let player of players) {
+                let p = document.createElement('p');
+                if (player['position'] === 'parent') {
+                    p.innerText = "親　";
+                } else if (player['position'] === 'child') {
+                    p.innerText = "子" + i + "　";
+                }
+                p.innerText += player['line_name'];
+                wrapper.appendChild(p);
+                i++;
+            }
+        }
+    };
+
+    const fetchPlayers = () => {
+        let ep = "https://monopoly-bottle.herokuapp.com/api/room/{{ room_id }}/player";
+        fetch(ep).then(response => response.json()).then(json => updatePlayers(json));
+    };
+
     liff.init(data=>{
         const lineId = data.context.userId;
         setParent(lineId);
-        setPlayer(lineId, true);
+        setPlayer(lineId);
     },err=>{
         alert('LIFF initializtion failed.\n' + err);
     });
+
+    setInterval(fetchPlayers, 1000);
 </script>
 
 {% endblock %}
