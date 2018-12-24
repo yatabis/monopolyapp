@@ -108,5 +108,12 @@ def make_room():
     return render('room.html', title=title, room_id=room_id, qr_code=qr_code)
 
 
+@get('/join-room')
+def join_room():
+    room_id = request.query.get('room')
+    title = f"ルーム{room_id[:6]}"
+    return render('join.html', title=title, room_id=room_id)
+
+
 if __name__ == '__main__':
     run(host='0.0.0.0', port=int(os.environ.get('PORT', 443)))

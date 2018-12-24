@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+
+<script>
+    const setPlayer = (lineId) => {
+        const ep = "https://monopoly-bottle.herokuapp.com/api/player";
+        const body = {'line_id': lineId, 'room_id': '{{ room_id }}'};
+        fetch(ep, {
+            method: 'POST',
+            body: JSON.stringify(body),
+            headers: {'Content-Type': 'application/json'}
+        })
+    };
+
+    const joinRoom = (lineId) => {
+        setPlayer(lineId);
+        liff.closeWindow();
+    };
+
+    liff.init(data=>{
+        const lineId = data.context.userId;
+        let roomId = '{{ room_id }}';
+        let start = document.createElement('div');
+        start.setAttribute('onclick', 'joinRoom(' + lineId + ')');
+        start.innerText = 'ルーム' + roomId.slice(0, 6) + 'に入る';
+        document.querySelector('body')[0].appendChild(start)
+    },err=>{
+        alert('LIFF initializtion failed.\n' + err);
+    });
+</script>
+
+{% endblock %}
