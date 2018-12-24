@@ -63,7 +63,7 @@ def set_player():
     room_id = request.json.get('room_id', "")
     position = request.json.get('position', 'child')
     deal = request.json.get('deal', 'free')
-    money = request.json.get('money', 2000000)
+    money = request.json.get('money', 15000000)
     with connect_db() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute('insert into player (line_id, line_name, room_id, position, deal, money)'
@@ -99,7 +99,7 @@ def create_new_room():
     data = str(b64encode(qr_img.getvalue()))[2:-1]
     with connect_db() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
-            cur.execute('insert into room (room_id, state, qr_code) values (%s, %s, %s);', (room_id, "starting", data))
+            cur.execute('insert into room (room_id, state) values (%s, %s);', (room_id, "starting"))
     return room_id, data
 
 
