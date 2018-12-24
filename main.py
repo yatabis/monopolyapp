@@ -14,6 +14,7 @@ import qrcode
 import requests
 
 CAT = os.environ.get('CHANNEL_ACCESS_TOKEN')
+MASTER = os.environ.get('MASTER')
 HEADER = {'Contetnt-Type': 'application/json', 'Authorization': f"Bearer {CAT}"}
 DATABASE = os.environ.get('DATABASE_URL')
 TEMPLATE_PATH.append("templates/")
@@ -77,7 +78,13 @@ def set_player():
 
 
 # LINE API
-def push_text(to, text):
+@post('/api/line/push')
+def push_text(to=None, text=None):
+    if text is None:
+        text = request.json.get('text', "メッセージがありません。")
+    if to is None:
+        to = request.json.get('to', MASTER)
+        text = "プッシュメッセージの送信に失敗しました。"
     ep = "https://api.line.me/v2/bot/message/push"
     body = {'to': to, 'messages': [{'type': 'text', 'text': text}]}
     return requests.post(ep, data=json.dumps(body, ensure_ascii=False).encode('utf-8'), headers=HEADER)
