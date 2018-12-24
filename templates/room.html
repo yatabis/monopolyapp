@@ -5,23 +5,47 @@
 {% block body %}
 
 <h1>ルーム{{ room_id|slice(0, 6) }}</h1>
-  <img src="data:image/png;base64,{{ qr_code }}" width="300" height="300">
-  <h1>参加プレイヤー</h1>
-  <div id="players">
-  </div>
-  <input type="button" value="このメンバーでプレイ" onclick="gameStart()">
+<img src="data:image/png;base64,{{ qr_code }}" width="300" height="300">
+<h1>参加プレイヤー</h1>
+<div id="players">
+</div>
+<input type="button" value="このメンバーでプレイ" onclick="gameStart()">
 
 <script>
-  const gameStart = () => {
-      liff.closeWindow();
-      window.close()
-  };
+    const gameStart = () => {
+        liff.closeWindow();
+        window.close()
+    };
 
-  liff.init(data=>{
-      alert('Your line ID\n' + data.context.userId);
-      },err=>{
-      alert('LIFF initializtion failed.\n' + err);
-  });
+    const setParent = (lineId) => {
+        const ep = "https://monopoly-bottle.herokuapp.com/api/room/{{ room_id }}/parent";
+        fetch(ep, {
+            method: 'POST',
+            body: JSON.stringify({parent: lineId}),
+            headers: {'Content-Type': 'application/json'},
+            mode: "cors"
+        })
+    };
+
+    const setPlayer = (lineId, isParent) => {
+        const ep = "https://monopoly-bottle.herokuapp.com/api/player";
+        const position = isParent ? 'parent' : 'child';
+        const body = {'line_id': lineId, 'room_id': '{{ room_id }}', 'position': position};
+        fetch(ep, {
+            method: 'POST',
+            body: JSON.stringify(body),
+            headers: {'Content-Type': 'application/json'},
+            mode: "cors"
+        })
+    };
+
+    liff.init(data=>{
+        const lineId = data.context.userId;
+        setParent(lineId);
+        setPlayer(lineId, true);
+    },err=>{
+        alert('LIFF initializtion failed.\n' + err);
+    });
 </script>
 
 {% endblock %}
