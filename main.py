@@ -24,28 +24,25 @@ def connect_db():
     return psycopg2.connect(DATABASE)
 
 
-@get('/api/room/list')
-def get_room(room_id=None):
+@get('/api/player/<line_id>')
+def get_player(line_id=None):
     with connect_db() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
-            if room_id is None:
-                cur.execute('select * from room')
-            else:
-                cur.execute('select * from room where room_id = %s', (room_id,))
-            return '<br>'.join([row['room_id'] for row in cur.fetchall()])
+            cur.execute('select * from player where line_id = %s', (line_id,))
+            player = dict(cur.fetchone())
+    return json.dumps(player, ensure_ascii=False)
 
 
-@get('/api/player/list')
-def get_player(user_id=None, room=None):
+@get('/api/room/<room_id>/player')
+def get_members(room_id=None):
     with connect_db() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
-            if user_id is not None:
-                cur.execute('select * from player where line_id = %s', (line_id,))
-            elif room is not None:
-                cur.execute('select * from player where room_id = %s', (room,))
-            else:
-                cur.execute('select * from player')
-            return '<br>'.join([f"{row['line_name']} ({row['line_id']})" for row in cur.fetchall()])
+            cur.execute('select * from player where room_id = %s', (room_id,))
+            members = []
+            for row in cur.fetchall():
+                members.append(dict(row))
+    members.sort(key=lambda x: x.pop('joined'))
+    return json.dumps(members, ensure_ascii=False)
 
 
 @post('/api/room/<room_id>/parent')
