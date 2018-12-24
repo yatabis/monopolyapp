@@ -24,7 +24,7 @@
         const lineId = data.context.userId;
         let roomId = '{{ room_id }}';
         let start = document.createElement('div');
-        start.setAttribute('onclick', 'joinRoom(' + lineId + ')');
+        start.setAttribute('onclick', 'joinRoom("' + lineId + '")');
         start.innerText = 'ルーム' + roomId.slice(0, 6) + 'に入る';
         document.querySelector('body').appendChild(start)
     },err=>{
