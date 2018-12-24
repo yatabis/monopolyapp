@@ -17,7 +17,8 @@
     };
 
     const setParent = (lineId) => {
-        const ep = "https://monopoly-bottle.herokuapp.com/api/room/{{ room_id }}/parent";
+        // const ep = "https://monopoly-bottle.herokuapp.com/api/room/{{ room_id }}/parent";
+        const ep = "http://0.0.0.0:443/api/room/{{ room_id }}/parent";
         fetch(ep, {
             method: 'POST',
             body: JSON.stringify({parent: lineId}),
@@ -26,7 +27,8 @@
     };
 
     const setPlayer = (lineId) => {
-        const ep = "https://monopoly-bottle.herokuapp.com/api/player";
+        // const ep = "https://monopoly-bottle.herokuapp.com/api/player";
+        const ep = "http://0.0.0.0:443/api/player";
         const body = {'line_id': lineId, 'room_id': '{{ room_id }}', 'position': 'parent'};
         fetch(ep, {
             method: 'POST',
@@ -36,10 +38,9 @@
     };
 
     const updatePlayers = (players) => {
-        let playersNum = document.getElementById('players').childElementCount;
-        if (Object.keys(players).length !== playersNum) {
-            let wrapper = document.getElementById('players');
-            while (wrapper.firstChild) element.removeChild(wrapper.firstChild);
+        let wrapper = document.getElementById('players');
+        if (players.length !== wrapper.childElementCount) {
+            wrapper.textContent = null;
             let i = 0;
             for (let player of players) {
                 let p = document.createElement('p');
@@ -56,7 +57,8 @@
     };
 
     const fetchPlayers = () => {
-        let ep = "https://monopoly-bottle.herokuapp.com/api/room/{{ room_id }}/player";
+        // let ep = "https://monopoly-bottle.herokuapp.com/api/room/{{ room_id }}/player";
+        let ep = "http://0.0.0.0:443/api/room/{{ room_id }}/player";
         fetch(ep).then(response => response.json()).then(json => updatePlayers(json));
     };
 
@@ -66,6 +68,9 @@
         setPlayer(lineId);
     },err=>{
         alert('LIFF initializtion failed.\n' + err);
+        const lineId = "U095f0aa6770163eea24cd39485e9b8b0";
+        setParent(lineId);
+        setPlayer(lineId);
     });
 
     setInterval(fetchPlayers, 1000);
