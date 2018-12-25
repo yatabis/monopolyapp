@@ -53,6 +53,7 @@ def set_parent(room_id=None):
     with connect_db() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute('update room set parent = %s where room_id = %s;', (parent, room_id))
+    push_text(parent, f"ルーム{room_id[:6]}を作成しました。")
 
 
 @post('/api/player')
@@ -67,10 +68,12 @@ def set_player():
             if len(check) == 0:
                 cur.execute('insert into player (line_id, line_name, room_id, position) values (%s, %s, %s, %s);',
                             (line_id, line_name, room_id, position))
+                push_text(line_id, f"ルーム{room_id[:6]}に入室しました。")
                 link_richmenu(line_id, position)
                 return OK_RESPONSE
             elif check['room_id'] == "":
                 cur.execute('update player set room_id = %s, position = %s;', (room_id, position))
+                push_text(line_id, f"ルーム{room_id[:6]}に入室しました。")
                 link_richmenu(line_id, position)
                 return OK_RESPONSE
             else:

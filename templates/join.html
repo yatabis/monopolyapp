@@ -15,19 +15,8 @@
         })
     };
 
-    const pushLine = (lineId, text) => {
-        const ep = "https://monopoly-bottle.herokuapp.com/api/line/push";
-        const body = {to: lineId, text: text};
-        fetch(ep, {
-            method: 'POST',
-            body: JSON.stringify(body),
-            headers: {'Content-Type': 'application/json'}
-        })
-    };
-
     const joinRoom = (lineId) => {
         setPlayer(lineId);
-        pushLine(lineId, "{{ title }}に入りました。");
         liff.closeWindow();
     };
 
