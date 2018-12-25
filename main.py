@@ -155,7 +155,7 @@ def join_room():
 
 @post('/line/callback')
 def line_callback():
-    for event in request.forms.get('events'):
+    for event in request.json.get('events'):
         if event['type'] == 'postback':
             reply_token = event['replyToken']
             if event['postback']['data'] == 'deal=payee':
