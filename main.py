@@ -15,7 +15,7 @@ import requests
 
 CAT = os.environ.get('CHANNEL_ACCESS_TOKEN')
 MASTER = os.environ.get('MASTER')
-HEADER = {'Contetnt-Type': 'application/json', 'Authorization': f"Bearer {CAT}"}
+HEADER = {'Content-Type': 'application/json', 'Authorization': f"Bearer {CAT}"}
 DATABASE = os.environ.get('DATABASE_URL')
 TEMPLATE_PATH.append("templates/")
 OK_RESPONSE = {'status_code': 200, 'message': "OK"}
@@ -175,7 +175,7 @@ def line_callback():
                 print("if文を抜けました。")
                 return
             print(req.status_code)
-            pprint(req.json)
+            pprint(req.json())
 
 
 if __name__ == '__main__':
