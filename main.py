@@ -138,6 +138,11 @@ def link_richmenu(line_id, position):
     requests.post(ep, headers=HEADER)
 
 
+def unlink_richmenu(line_id):
+    ep = f"https://api.line.me/v2/bot/user/{line_id}/richmenu"
+    requests.delete(ep, headers=HEADER)
+
+
 # callback
 @get('/make-room')
 def make_room():
@@ -156,6 +161,7 @@ def join_room():
 @post('/line/callback')
 def line_callback():
     for event in request.json.get('events'):
+        pprint(event)
         if event['type'] == 'postback':
             reply_token = event['replyToken']
             if event['postback']['data'] == 'deal=payee':
