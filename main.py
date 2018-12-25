@@ -93,6 +93,19 @@ def push_text(to=None, text=None):
     return requests.post(ep, data=json.dumps(body, ensure_ascii=False).encode('utf-8'), headers=HEADER)
 
 
+@post('/api/line/reply')
+def reply_text(token=None, text=None):
+    if text is None:
+        text = request.json.get('text', "メッセージがありません。")
+    if token is None:
+        token = request.json.get('replyToken', "TokenError")
+    if token == "TokenError":
+        push_text(MASTER, "リプライメッセージの送信に失敗しました。")
+    ep = "https://api.line.me/v2/bot/message/reply"
+    body = {'replyToken': token, 'messages': [{'type': 'text', 'text': text}]}
+    return requests.post(ep, data=json.dumps(body, ensure_ascii=False).encode('utf-8'), headers=HEADER)
+
+
 @get('/api/display-name/<line_id>')
 def get_display_name(line_id=None):
     if line_id is None:
@@ -142,7 +155,13 @@ def join_room():
 
 @post('/line/callback')
 def line_callback():
-    pass
+    for event in request.forms.get('events'):
+        if event['type'] == 'postback':
+            reply_token = event['replyToken']
+            if event['postback']['data'] == 'deal=payee':
+                reply_text(reply_token, "受取人にセットしました")
+            elif event['postback']['data'] == 'deal=payer':
+                reply_text(reply_token, "支払人にセットしました")
 
 
 if __name__ == '__main__':
