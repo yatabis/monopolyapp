@@ -164,10 +164,18 @@ def line_callback():
         pprint(event)
         if event['type'] == 'postback':
             reply_token = event['replyToken']
+            print(event['postback']['data'])
             if event['postback']['data'] == 'deal=payee':
-                reply_text(reply_token, "受取人にセットしました")
+                print("payeeでした。")
+                req = reply_text(reply_token, "受取人にセットしました")
             elif event['postback']['data'] == 'deal=payer':
-                reply_text(reply_token, "支払人にセットしました")
+                print("payerでした。")
+                req = reply_text(reply_token, "支払人にセットしました")
+            else:
+                print("if文を抜けました。")
+                return
+            print(req.status_code)
+            pprint(req.json)
 
 
 if __name__ == '__main__':
