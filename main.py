@@ -4,9 +4,10 @@ import json
 import os
 from uuid import uuid4
 
-from bottle import get, post, request, run
+from bottle import get, post, request, run, route, static_file
 from bottle import jinja2_template as render
 from bottle import TEMPLATE_PATH
+from PIL import Image
 from pprint import pprint
 import psycopg2
 from psycopg2.extras import DictCursor
@@ -119,6 +120,12 @@ def get_display_name(line_id=None):
 
 
 # functions
+def get_image_data(img, fmt='PNG'):
+    data = io.BytesIO()
+    img.save(data, format=fmt)
+    return str(b64encode(data.getvalue()))[2:-1]
+
+
 def create_new_room():
     room_id = str(b64encode(str(uuid4()).encode('utf-8')))[2:-1].lower()
     room_qr = qrcode.make(f"line://app/1629635023-JwWZbqzz?room={room_id}").get_image()
@@ -135,15 +142,20 @@ def link_richmenu(line_id, position):
     richmenu_id = {'parent': "",
                    'child': "richmenu-fd8b0d6d96122d2c8b9bc9a6d892fdc4"}
     ep = f"https://api.line.me/v2/bot/user/{line_id}/richmenu/{richmenu_id[position]}"
-    requests.post(ep, headers=HEADER)
+    return requests.post(ep, headers=HEADER)
 
 
 def unlink_richmenu(line_id):
     ep = f"https://api.line.me/v2/bot/user/{line_id}/richmenu"
-    requests.delete(ep, headers=HEADER)
+    return requests.delete(ep, headers=HEADER)
 
 
 # callback
+@route('/images/<filename:path>')
+def load_image(filename):
+    return static_file(filename, root='./images')
+
+
 @get('/make-room')
 def make_room():
     room_id, qr_code = create_new_room()
@@ -158,24 +170,21 @@ def join_room():
     return render('join.html', title=title, room_id=room_id)
 
 
+@get('/memory-bank')
+def memory_bank():
+    return render('memorybank.html')
+
+
 @post('/line/callback')
 def line_callback():
     for event in request.json.get('events'):
         pprint(event)
         if event['type'] == 'postback':
             reply_token = event['replyToken']
-            print(event['postback']['data'])
             if event['postback']['data'] == 'deal=payee':
-                print("payeeでした。")
-                req = reply_text(reply_token, "受取人にセットしました")
+                reply_text(reply_token, "受取人にセットしました")
             elif event['postback']['data'] == 'deal=payer':
-                print("payerでした。")
-                req = reply_text(reply_token, "支払人にセットしました")
-            else:
-                print("if文を抜けました。")
-                return
-            print(req.status_code)
-            pprint(req.json())
+                reply_text(reply_token, "支払人にセットしました")
 
 
 if __name__ == '__main__':
