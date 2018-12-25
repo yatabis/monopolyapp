@@ -140,5 +140,10 @@ def join_room():
     return render('join.html', title=title, room_id=room_id)
 
 
+@post('/line/callback')
+def line_callback():
+    pass
+
+
 if __name__ == '__main__':
     run(host='0.0.0.0', port=int(os.environ.get('PORT', 443)))
